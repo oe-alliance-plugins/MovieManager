@@ -50,11 +50,14 @@ MY_RECORDINGS_EXTENSIONS = frozenset((".ts",))
 MY_MOVIE_EXTENSIONS = MOVIE_EXTENSIONS.symmetric_difference(MY_RECORDINGS_EXTENSIONS)
 SKIPPED = ".m3u8"
 
+
 def hex2strColor(argb):
 	out = ""
 	for i in range(28, -1, -4):
-		out += "%s" % chr(0x30 + (argb>>i & 0xf))
+		out += "%s" % chr(0x30 + (argb >> i & 0xf))
 	return out
+
+
 try:
 	fC = "\c%s" % hex2strColor(int(skin.parseColor("foreground").argb()))
 except:
@@ -63,14 +66,14 @@ gC = "\c%s" % hex2strColor(0x000ff80)
 
 config.moviemanager = ConfigSubsection()
 config.moviemanager.sensitive = ConfigYesNo(default=False)
-config.moviemanager.search = ConfigSelection(default = "begin", choices = [("begin", _("start title")), ("end", _("end title")), ("in", _("contains in title"))])
+config.moviemanager.search = ConfigSelection(default="begin", choices=[("begin", _("start title")), ("end", _("end title")), ("in", _("contains in title"))])
 choicelist = []
 for i in range(1, 11, 1):
 	choicelist.append(("%d" % i))
 choicelist.append(("15", "15"))
 choicelist.append(("20", "20"))
-config.moviemanager.length = ConfigSelection(default = "3", choices = [("0", _("No"))] + choicelist + [("255", _("All"))])
-config.moviemanager.endlength = ConfigSelection(default = "5", choices = [("0", _("No"))] + choicelist + [("255", _("All"))])
+config.moviemanager.length = ConfigSelection(default="3", choices=[("0", _("No"))] + choicelist + [("255", _("All"))])
+config.moviemanager.endlength = ConfigSelection(default="5", choices=[("0", _("No"))] + choicelist + [("255", _("All"))])
 config.moviemanager.add_bookmark = ConfigYesNo(default=False)
 config.moviemanager.clear_bookmarks = ConfigYesNo(default=True)
 config.moviemanager.manage_all = ConfigYesNo(default=False)
@@ -82,7 +85,7 @@ config.moviemanager.other_movies = ConfigYesNo(default=True)
 config.moviemanager.pictures = ConfigYesNo(default=False)
 config.moviemanager.audios = ConfigYesNo(default=False)
 config.moviemanager.dvds = ConfigYesNo(default=False)
-config.moviemanager.sort = ConfigSelection(default = "0", choices = [
+config.moviemanager.sort = ConfigSelection(default="0", choices=[
 	("0", _("Original list")),
 	("1", _("A-z sort")),
 	("2", _("Z-a sort")),
@@ -104,26 +107,39 @@ LISTFILE = '/tmp/movies.csv'
 HOSTNAME = '/etc/hostname'
 PKLFILE = '.e2settings.pkl'
 
+
 def NAME(item):
 	return item[0][0]
+
+
 def ITEM(item):
 	return item[0][1][0]
+
+
 def SIZE(item):
 	return item[0][1][1]
+
+
 def LENGTH(item):
 	return item[0][1][2].getLength(ITEM(item))
+
+
 def INFO(item):
 	return item[0][1][2]
+
+
 def SELECTED(item):
 	return item[0][3]
+
 
 class MovieManagerPlayerInfoBar(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.skinName = "MoviePlayer"
 
+
 class MovieManager(Screen, HelpableScreen):
-	skin="""
+	skin = """
 	<screen name="MovieManager" position="center,center" size="600,415" title="List of files">
 		<ePixmap name="red"    position="0,0"   zPosition="2" size="140,40" pixmap="skin_default/buttons/red.png" transparent="1" alphatest="on"/>
 		<ePixmap name="green"  position="140,0" zPosition="2" size="140,40" pixmap="skin_default/buttons/green.png" transparent="1" alphatest="on"/>
@@ -152,15 +168,15 @@ class MovieManager(Screen, HelpableScreen):
 		<widget name="description" position="140,368" zPosition="2" size="470,46" valign="center" halign="left" font="Regular;16" foregroundColor="white"/>
 	</screen>
 	"""
+
 	def __init__(self, session, service=None, parent=None):
-		Screen.__init__(self, session, parent = parent)
+		Screen.__init__(self, session, parent=parent)
 		HelpableScreen.__init__(self)
 		self.session = session
 		self.current = service
 		self.parent = parent
 
-		self.__event_tracker = ServiceEventTracker(screen=self, eventmap=
-			{
+		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
 				iPlayableService.evEOF: self.__endOfFile,
 			})
 
@@ -199,9 +215,9 @@ class MovieManager(Screen, HelpableScreen):
 		time_13 = config.seek.selfdefined_13.value
 		time_46 = config.seek.selfdefined_46.value
 		time_79 = config.seek.selfdefined_79.value
-		f13 = lambda: self.seekRelative(1,  time_13 * 90000)
-		f46 = lambda: self.seekRelative(1,  time_46 * 90000)
-		f79 = lambda: self.seekRelative(1,  time_79 * 90000)
+		f13 = lambda: self.seekRelative(1, time_13 * 90000)
+		f46 = lambda: self.seekRelative(1, time_46 * 90000)
+		f79 = lambda: self.seekRelative(1, time_79 * 90000)
 		b13 = lambda: self.seekRelative(-1, time_13 * 90000)
 		b46 = lambda: self.seekRelative(-1, time_46 * 90000)
 		b79 = lambda: self.seekRelative(-1, time_79 * 90000)
@@ -252,7 +268,7 @@ class MovieManager(Screen, HelpableScreen):
 	def parseMovieList(self, movielist, list):
 		self.position = -1
 		index = 0
-		suma=0
+		suma = 0
 		for i, record in enumerate(movielist):
 			if record:
 				item = record[0]
@@ -277,13 +293,13 @@ class MovieManager(Screen, HelpableScreen):
 					name = info and info.getName(item)
 					size = 0
 					if info:
-						if isinstance(info, StubInfo): # picture
+						if isinstance(info, StubInfo):  # picture
 							size = info.getInfo(item, iServiceInformation.sFileSize)
 						else:
-							size = info.getInfoObject(item, iServiceInformation.sFileSize) # movie
+							size = info.getInfoObject(item, iServiceInformation.sFileSize)  # movie
 					list.list.append(MySelectionEntryComponent(name, (item, size, info), index, False))
 					index += 1
-					suma+=size
+					suma += size
 		self.l = MySelectionList(list)
 		self.l.setList(list)
 		print("[MovieMnager} list filled with %s items. Size: %s, position %s" % (index, self.convertSize(suma), self.position))
@@ -292,6 +308,7 @@ class MovieManager(Screen, HelpableScreen):
 
 	def firstItem(self):
 		self["config"].moveToIndex(0)
+
 	def lastItem(self):
 		self["config"].moveToIndex(self.list.len() - 1)
 
@@ -356,6 +373,7 @@ class MovieManager(Screen, HelpableScreen):
 		if self.played:
 			self.controlPlayerInfoBar()
 			return
+
 		def getSubstring(value):
 			if value == "begin":
 				return _("starts with...")
@@ -366,7 +384,7 @@ class MovieManager(Screen, HelpableScreen):
 		if mark:
 			txt = _("Add to selection (%s)") % getSubstring(cfg.search.value)
 		else:
-			txt = _("Remove from selection (%s)")  % getSubstring(cfg.search.value)
+			txt = _("Remove from selection (%s)") % getSubstring(cfg.search.value)
 		item = self["config"].getCurrent()
 		length = int(cfg.length.value)
 		endlength = int(cfg.endlength.value)
@@ -374,13 +392,13 @@ class MovieManager(Screen, HelpableScreen):
 		if item:
 			if cfg.search.value == "begin" and length:
 				name = NAME(item).decode('UTF-8', 'replace')[0:length]
-				txt += 10*" " + "%s" % length
+				txt += 10 * " " + "%s" % length
 			elif cfg.search.value == "end" and endlength:
 				name = NAME(item).decode('UTF-8', 'replace')[-endlength:]
-				txt += 10*" " + "%s" % endlength
-		self.session.openWithCallback(boundFunction(self.changeItems, mark), VirtualKeyBoard, title = txt, text = name)
+				txt += 10 * " " + "%s" % endlength
+		self.session.openWithCallback(boundFunction(self.changeItems, mark), VirtualKeyBoard, title=txt, text=name)
 
-	def changeItems(self, mark, searchString = None):
+	def changeItems(self, mark, searchString=None):
 		if searchString:
 			searchString = searchString.decode('UTF-8', 'replace')
 			if not cfg.sensitive.value:
@@ -392,14 +410,14 @@ class MovieManager(Screen, HelpableScreen):
 					elif cfg.search.value == "end":
 						exist = NAME(item).decode('UTF-8', 'replace').endswith(searchString)
 					else:
-						exist = False if NAME(item).decode('UTF-8', 'replace').find(searchString)== -1 else True
+						exist = False if NAME(item).decode('UTF-8', 'replace').find(searchString) == -1 else True
 				else:
 					if cfg.search.value == "begin":
 						exist = NAME(item).decode('UTF-8', 'replace').lower().startswith(searchString)
 					elif cfg.search.value == "end":
 						exist = NAME(item).decode('UTF-8', 'replace').lower().endswith(searchString)
 					else:
-						exist = False if NAME(item).decode('UTF-8', 'replace').lower().find(searchString)== -1 else True
+						exist = False if NAME(item).decode('UTF-8', 'replace').lower().find(searchString) == -1 else True
 				if exist:
 					if mark:
 						if not SELECTED(item):
@@ -420,7 +438,7 @@ class MovieManager(Screen, HelpableScreen):
 		menu.append((_("Rename"), 2, _("Rename current file.")))
 		keys += ["2"]
 		menu.append((_("Create directory"), 7, _("Create new directory in current directory.")))
-		keys+=["7"]
+		keys += ["7"]
 		if config.usage.setup_level.index == 2:
 			menu.append((_("Delete"), 8, _("Delete current file or selected file(s).")))
 			keys += ["8"]
@@ -428,16 +446,16 @@ class MovieManager(Screen, HelpableScreen):
 			menu.append((_("Clear bookmarks..."), 10, _("Display all existing bookmarks in box. Unwanted or unnecessary bookmarks can be removed.")))
 			keys += [""]
 		menu.append((_("Reset playback position"), 15, _("Reset playback position for all marked files in movielist.")))
-		keys+=[""]
+		keys += [""]
 
 		if len(self.list.getSelectionsList()):
 			menu.append((_("Play selected..."), 30, _("Playback all selected files.")))
-			keys+=["green"]
+			keys += ["green"]
 		elif self["config"].getCurrent():
 			menu.append((_("Play"), 30, _("Playback current file.")))
-			keys+=["green"]
+			keys += ["green"]
 		menu.append((_("Sort by..."), 17, _("Set sort type for current movielist.")))
-		keys+=["yellow"]
+		keys += ["yellow"]
 		if cfg.manage_all.value:
 			menu.append((_("Update valid bookmarks"), 19, _("Update bookmarks depending on the current mountpoints. If mountpoints sleeping, then it take some time before they wakes up.")))
 			keys += [""]
@@ -454,7 +472,7 @@ class MovieManager(Screen, HelpableScreen):
 		keys += ["menu"]
 
 		text = _("Select operation:")
-		self.session.openWithCallback(self.menuCallback, ChoiceBox, title=text, list=menu, keys=["dummy" if key=="" else key for key in keys], skin_name="MovieManagerChoiceBox")
+		self.session.openWithCallback(self.menuCallback, ChoiceBox, title=text, list=menu, keys=["dummy" if key == "" else key for key in keys], skin_name="MovieManagerChoiceBox")
 
 	def menuCallback(self, choice):
 		if choice is None:
@@ -488,7 +506,7 @@ class MovieManager(Screen, HelpableScreen):
 			def cfgCallBack(choice=False):
 				cfg_after = self.getCfgStatus()
 				if self.cfg_before != cfg_after:
-					if (cfg_after & 0x20) - (self.cfg_before & 0x20) < 0: # all -> single
+					if (cfg_after & 0x20) - (self.cfg_before & 0x20) < 0:  # all -> single
 						self.accross = cfg.manage_all.value
 					path = config.movielist.last_videodir.value
 					if self.accross:
@@ -514,10 +532,10 @@ class MovieManager(Screen, HelpableScreen):
 
 	def createDir(self):
 		self.session.openWithCallback(self.parent.createDirCallback, VirtualKeyBoard,
-			title = _("New directory name in '%s'") % config.movielist.last_videodir.value, text = "")
+			title=_("New directory name in '%s'") % config.movielist.last_videodir.value, text="")
 
 	def getCfgStatus(self):
-		s =  0x01 if cfg.subdirs.value else 0
+		s = 0x01 if cfg.subdirs.value else 0
 		s += 0x02 if cfg.other_movies.value else 0
 		s += 0x04 if cfg.audios.value else 0
 		s += 0x08 if cfg.pictures.value else 0
@@ -538,6 +556,7 @@ class MovieManager(Screen, HelpableScreen):
 			if len(line):
 				return line
 			return "e2"
+
 		def getItemDuration(service, info):
 			duration = info.getLength(service)
 			if duration < 0:
@@ -552,14 +571,14 @@ class MovieManager(Screen, HelpableScreen):
 			service_name = ServiceReference(rec_ref_str).getServiceName()
 			if not service_name:
 				path = service.getPath().split(' - ')
-				if len(path) >=3 and path[0][-13:].replace(' ', '').isdigit():
+				if len(path) >= 3 and path[0][-13:].replace(' ', '').isdigit():
 					return path[1]
 				else:
 					return service_name
 			return service_name
 
 		listfile = LISTFILE.split('.')
-		csvName="%s-%s-%s.%s" % (listfile[0], getBoxName(), datetime.now().strftime("%Y%m%d-%H%M%S"), listfile[1])
+		csvName = "%s-%s-%s.%s" % (listfile[0], getBoxName(), datetime.now().strftime("%Y%m%d-%H%M%S"), listfile[1])
 
 		fo = open("%s" % csvName, "w")
 		# header
@@ -605,7 +624,7 @@ class MovieManager(Screen, HelpableScreen):
 				line = ';'.join((name, size, path)) + "\n"
 			fo.write(line)
 		fo.close()
-		self.session.open(MessageBox, _("List was saved to '%s'") % (gC + csvName + fC), type = MessageBox.TYPE_INFO, timeout = 5)
+		self.session.open(MessageBox, _("List was saved to '%s'") % (gC + csvName + fC), type=MessageBox.TYPE_INFO, timeout=5)
 
 	def selectSortby(self):
 		menu = []
@@ -627,9 +646,9 @@ class MovieManager(Screen, HelpableScreen):
 		if item:
 			name = NAME(item)
 			full_name = os.path.split(ITEM(item).getPath())
-			if full_name == name: # split extensions for files without metafile
+			if full_name == name:  # split extensions for files without metafile
 				name, self.extension = os.path.splitext(name)
-		self.session.openWithCallback(self.renameCallback, VirtualKeyBoard, title = _("Rename"), text = name)
+		self.session.openWithCallback(self.renameCallback, VirtualKeyBoard, title=_("Rename"), text=name)
 
 	def renameCallback(self, name):
 		def renameItemInList(list, item, newname):
@@ -640,15 +659,17 @@ class MovieManager(Screen, HelpableScreen):
 					self.position = list_item[0][2]
 				a.append(list_item)
 			return a
+
 		def reloadNewList(newlist, list):
 			index = 0
 			for n in newlist:
 				item = n[0]
 				list.list.append(MySelectionEntryComponent(item[0], item[1], index, item[3]))
-				index+=1
+				index += 1
 			self.l = MySelectionList(list)
 			self.l.setList(list)
 			return list
+
 		def renameItem(item, newname, list):
 			new = renameItemInList(list, item, newname)
 			self.clearList()
@@ -669,7 +690,7 @@ class MovieManager(Screen, HelpableScreen):
 					oldtitle = metafile.readline()
 					rest = metafile.read()
 					metafile.seek(0)
-					metafile.write("%s%s\n%s" %(sid, name, rest))
+					metafile.write("%s%s\n%s" % (sid, name, rest))
 					metafile.truncate()
 					metafile.close()
 				else:
@@ -692,7 +713,7 @@ class MovieManager(Screen, HelpableScreen):
 				traceback.print_exc()
 				msg = _("Error") + '\n' + str(e)
 			if msg:
-				self.session.open(MessageBox, msg, type = MessageBox.TYPE_ERROR, timeout = 5)
+				self.session.open(MessageBox, msg, type=MessageBox.TYPE_ERROR, timeout=5)
 
 	def getData(self, current_dir=None):
 		def lookDirs(path):
@@ -710,21 +731,25 @@ class MovieManager(Screen, HelpableScreen):
 				if PKLFILE in files:
 					self.pklPaths.append(path.rstrip('/'))
 			return paths
+
 		def setCurrentRef(path):
 			self.current_ref = eServiceReference("2:0:1:0:0:0:0:0:0:0:" + path)
 			if cfg.pictures.value:
 				self.current_ref.setName('16384:jpg 16384:png 16384:gif 16384:bmp 16384:jpeg')
+
 		def readDirectory(path):
 			setCurrentRef(path)
 			list = MovieList(None, sort_type=MovieList.SORT_GROUPWISE)
 			list.reload(self.current_ref, [])
 			return list
+
 		def readSubdirs(path):
 			files = []
 			for subdir in lookDirs(path):
 				files += readDirectory(subdir)
 				print("[MovieManager] + added files from %s" % subdir)
 			return files
+
 		def readLists(current_dir=None):
 			files = []
 			if config.movielist.videodirs.saved_value and not current_dir:
@@ -820,7 +845,7 @@ class MovieManager(Screen, HelpableScreen):
 			self.session.open(MovieManagerFileInfo, (item, self.getLastPlayedPosition(item), self.convertSize(SIZE(item))))
 
 	def getLastPlayedPosition(self, item):
-		lastposition = moviePlayState(ITEM(item).getPath()+'.cuts', ITEM(item), LENGTH(item))
+		lastposition = moviePlayState(ITEM(item).getPath() + '.cuts', ITEM(item), LENGTH(item))
 		if lastposition:
 			return "%s%s" % (lastposition, '%')
 		return ""
@@ -853,24 +878,24 @@ class MovieManager(Screen, HelpableScreen):
 			self.selectSortby()
 			return
 		sort = int(config.moviemanager.sort.value)
-		sort +=1
-		if sort == 3 and  not len(self.list.getSelectionsList()):
-			sort +=1
-		sort %=5
+		sort += 1
+		if sort == 3 and not len(self.list.getSelectionsList()):
+			sort += 1
+		sort %= 5
 		self.sortList(sort)
 
 	def sortList(self, sort):
 		if len(self["config"].list):
 			item = self["config"].getCurrent()
-			if sort == 0:	# original input list
+			if sort == 0:  # original input list
 				self.list.sort(sortType=2)
-			elif sort == 1:	# a-z
+			elif sort == 1:  # a-z
 				self.list.sort(sortType=0)
-			elif sort == 2:	# z-a
+			elif sort == 2:  # z-a
 				self.list.sort(sortType=0, flag=True)
-			elif sort == 3:	# selected top
+			elif sort == 3:  # selected top
 				self.list.sort(sortType=3, flag=True)
-			elif sort == 4:	# original input list reverted
+			elif sort == 4:  # original input list reverted
 				self.list.sort(sortType=2, flag=True)
 			idx = self.getItemIndex(item)
 			self["config"].moveToIndex(idx)
@@ -1046,7 +1071,7 @@ class MovieManager(Screen, HelpableScreen):
 					moveServiceFiles(item[1][0], dest, item[0])
 					self.list.removeSelection(item)
 				except Exception as e:
-					self.session.open(MessageBox, str(e), MessageBox.TYPE_ERROR, timeout=3 )
+					self.session.open(MessageBox, str(e), MessageBox.TYPE_ERROR, timeout=3)
 		self.displaySelectionPars()
 		if not len(self.list.list):
 			self.exit()
@@ -1101,7 +1126,7 @@ class MovieManager(Screen, HelpableScreen):
 			self.parent.reloadList()
 
 	def selectMovieLocation(self, title, callback):
-		bookmarks = [("("+_("Other")+"...)", None)]
+		bookmarks = [("(" + _("Other") + "...)", None)]
 		buildMovieLocationList(bookmarks)
 		self.onMovieSelected = callback
 		self.movieSelectTitle = title
@@ -1150,7 +1175,7 @@ class MovieManager(Screen, HelpableScreen):
 			try:
 				from Plugins.Extensions.CSFD.plugin import CSFD
 			except ImportError:
-				self.session.open(MessageBox, _("The CSFD plugin is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO, timeout = 5 )
+				self.session.open(MessageBox, _("The CSFD plugin is not installed!\nPlease install it."), type=MessageBox.TYPE_INFO, timeout=5)
 				return False
 			else:
 				return True
@@ -1160,9 +1185,11 @@ class MovieManager(Screen, HelpableScreen):
 				from Plugins.Extensions.CSFD.plugin import CSFD
 				self.session.open(CSFD, event[0][0])
 
-def MyMovieLocationBox(session, text, dir, filename = "", minFree = None):
+
+def MyMovieLocationBox(session, text, dir, filename="", minFree=None):
 	config.movielist.videodirs.load()
-	return LocationBox(session, text = text,  filename = filename, currDir = dir, bookmarks = config.movielist.videodirs, autoAdd = cfg.add_bookmark.value, editDir = True, inhibitDirs = defaultInhibitDirs, minFree = minFree)
+	return LocationBox(session, text=text, filename=filename, currDir=dir, bookmarks=config.movielist.videodirs, autoAdd=cfg.add_bookmark.value, editDir=True, inhibitDirs=defaultInhibitDirs, minFree=minFree)
+
 
 class MovieManagerCfg(Screen, ConfigListScreen):
 	def __init__(self, session):
@@ -1184,7 +1211,7 @@ class MovieManagerCfg(Screen, ConfigListScreen):
 		}, -2)
 		self.list = []
 		self.onChangedEntry = []
-		ConfigListScreen.__init__(self, self.list, session = session, on_change = self.changedEntry)
+		ConfigListScreen.__init__(self, self.list, session=session, on_change=self.changedEntry)
 		self.loadMenu()
 
 	def loadMenu(self):
@@ -1204,7 +1231,7 @@ class MovieManagerCfg(Screen, ConfigListScreen):
 		self.subdirs = _("Including subdirectories")
 		self.list.append(getConfigListEntry(self.subdirs, cfg.subdirs, _("If enabled, then will be used subdirectories too (it will take longer).") + note))
 		if cfg.subdirs.value:
-			dx = 4*" "
+			dx = 4 * " "
 			self.list.append(getConfigListEntry(dx + _("Include trashcans"), cfg.trashcans, _("Items from trashcans will be added into list too.") + note))
 		self.list.append(getConfigListEntry(_("Recordings"), cfg.recordings, _("If enabled, then will be added recordings into list.") + note))
 		self.list.append(getConfigListEntry(_("Other movie files"), cfg.other_movies, _("If enabled, then will be added other movie files into list.") + note))
@@ -1217,7 +1244,7 @@ class MovieManagerCfg(Screen, ConfigListScreen):
 		self.csv_extended = _("Save extended list")
 		self.list.append(getConfigListEntry(self.csv_extended, cfg.csv_extended, _("Save extended '.csv' filelist with more data. It spend more time.")))
 		if cfg.csv_extended.value:
-			dx = 4*" "
+			dx = 4 * " "
 			self.list.append(getConfigListEntry(dx + _("Duration"), cfg.csv_duration, _("Add duration in hours into extended list. It extends list creation.")))
 			today = strftime("%Y.%m.%d %H:%M", localtime()).split()
 			self.list.append(getConfigListEntry(dx + _("Date"), cfg.csv_date, _("Add date into extended list in format '%s'.") % today[0]))
@@ -1232,11 +1259,14 @@ class MovieManagerCfg(Screen, ConfigListScreen):
 			self.loadMenu()
 		for x in self.onChangedEntry:
 			x()
+
 	def getCurrentEntry(self):
 		self["description"].setText(self["config"].getCurrent()[2])
 		return self["config"].getCurrent()[0]
+
 	def getCurrentValue(self):
 		return str(self["config"].getCurrent()[1].getText())
+
 	def createSummary(self):
 		from Screens.Setup import SetupSummary
 		return SetupSummary
@@ -1248,8 +1278,9 @@ class MovieManagerCfg(Screen, ConfigListScreen):
 	def exit(self):
 		self.keyCancel()
 
+
 class MovieManagerClearBookmarks(Screen, HelpableScreen):
-	skin="""
+	skin = """
 	<screen name="MovieManager" position="center,center" size="600,390" title="List of bookmarks">
 		<ePixmap name="red"    position="0,0"   zPosition="2" size="140,40" pixmap="skin_default/buttons/red.png" transparent="1" alphatest="on"/>
 		<ePixmap name="green"  position="140,0" zPosition="2" size="140,40" pixmap="skin_default/buttons/green.png" transparent="1" alphatest="on"/>
@@ -1264,6 +1295,7 @@ class MovieManagerClearBookmarks(Screen, HelpableScreen):
 		<widget name="description" position="5,360" zPosition="2" size="590,25" valign="center" halign="left" font="Regular;22" foregroundColor="white"/>
 	</screen>
 	"""
+
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
@@ -1324,17 +1356,17 @@ class MovieManagerClearBookmarks(Screen, HelpableScreen):
 			self["description"].setText("")
 
 	def sortList(self):
-		if self.sort == 0:	# z-a
+		if self.sort == 0:  # z-a
 			self.list.sort(sortType=0, flag=True)
 			self.sort = 1
 		elif self.sort == 1:
-			if len(self.list.getSelectionsList()):	# selected top
+			if len(self.list.getSelectionsList()):  # selected top
 				self.list.sort(sortType=3, flag=True)
 				self.sort = 2
 			else:		# a-z
 				self.list.sort(sortType=0)
 				self.sort = 0
-		elif self.sort == 2:	# a-z
+		elif self.sort == 2:  # a-z
 			self.list.sort(sortType=0)
 			self.sort = 0
 
@@ -1365,8 +1397,9 @@ class MovieManagerClearBookmarks(Screen, HelpableScreen):
 		config.movielist.videodirs.load()
 		self.close()
 
+
 class MovieManagerFileInfo(Screen):
-	skin="""
+	skin = """
 	<screen name="MovieManagerFileInfo" position="fill" title="Info" flags="wfNoBorder" backgroundColor="background">
 		<widget name="name" position="10,15" size="1920,30" font="Regular;26"/>
 		<widget name="path" position="10,45" size="1920,30" font="Regular;26" foregroundColor="green"/>
@@ -1414,11 +1447,11 @@ class MovieManagerFileInfo(Screen):
 
 	def setSize(self):
 		x, y = self.getLineSize()
-		wsize = (x + 2*10, 5*y)
+		wsize = (x + 2 * 10, 5 * y)
 		self.instance.resize(eSize(*wsize))
 		w, h = self.getScreenSize()
-		wx = (w - wsize[0])/2
-		wy = (h - wsize[1])/2
+		wx = (w - wsize[0]) / 2
+		wy = (h - wsize[1]) / 2
 		self.instance.move(ePoint(wx, wy))
 
 	def getLineSize(self):

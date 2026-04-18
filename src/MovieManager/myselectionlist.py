@@ -14,6 +14,7 @@ select_png = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, plugin_
 if select_png is None:
 	select_png = LoadPixmap(cached=True, path=resolveFilename(SCOPE_CURRENT_SKIN, "icons/lock_on.png"))
 
+
 def MySelectionEntryComponent(description, value, index, selected):
 	dx, dy, dw, dh = skin.parameters.get("ImsSelectionListDescr", (35, 2, 650, 30))
 	res = [
@@ -25,14 +26,15 @@ def MySelectionEntryComponent(description, value, index, selected):
 		res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, ix, iy, iw, ih, select_png))
 	return res
 
+
 class MySelectionList(MenuList):
-	def __init__(self, list = None, enableWrapAround = False):
-		MenuList.__init__(self, list or [], enableWrapAround, content = eListboxPythonMultiContent)
+	def __init__(self, list=None, enableWrapAround=False):
+		MenuList.__init__(self, list or [], enableWrapAround, content=eListboxPythonMultiContent)
 		font = skin.fonts.get("ImsSelectionList", ("Regular", 20, 30))
 		self.l.setFont(0, gFont(font[0], font[1]))
 		self.l.setItemHeight(font[2])
 
-	def addSelection(self, description, value, index, selected = True):
+	def addSelection(self, description, value, index, selected=True):
 		self.list.append(MySelectionEntryComponent(description, value, index, selected))
 		self.setList(self.list)
 
@@ -44,7 +46,7 @@ class MySelectionList(MenuList):
 			self.setList(self.list)
 
 	def getSelectionsList(self):
-		return [ (item[0][0], item[0][1], item[0][2]) for item in self.list if item[0][3] ]
+		return [(item[0][0], item[0][1], item[0][2]) for item in self.list if item[0][3]]
 
 	def toggleAllSelection(self):
 		for idx, item in enumerate(self.list):
