@@ -22,3 +22,5 @@ def ngettext(singular, plural, n):
 
 localeInit()
 language.addCallback(localeInit)
+
+__version__ = "2.0.2"

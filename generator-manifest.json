@@ -1,0 +1,24 @@
+{
+  "depends": "",
+  "description": "copy, move and delete more files at once",
+  "legacy_setup": {
+    "description": "copy, move and delete more files at once",
+    "has_setup_translate": true,
+    "name": "enigma2-plugin-extensions-moviemanager",
+    "package_data": [],
+    "package_dir_value": "",
+    "packages": [],
+    "pkg": "Extensions.MovieManager",
+    "version": "2.02"
+  },
+  "module_dir_name": "MovieManager",
+  "package_name": "enigma2-plugin-extensions-moviemanager",
+  "plugin_group": "extensions",
+  "source_repo_branch": "master",
+  "source_repo_name": "MovieManager",
+  "source_repo_url": "https://github.com/oe-mirrors/MovieManager.git",
+  "target_repo_branch": "main",
+  "target_repo_name": "MovieManager",
+  "target_repo_url": "git@github.com:oe-alliance-plugins/MovieManager.git",
+  "version": "2.02"
+}
