@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
 #
 #  MovieManager
 #
@@ -20,17 +18,14 @@ from __future__ import print_function
 # for localized messages
 from . import _, ngettext
 
-from Plugins.Plugin import PluginDescriptor
 from Screens.Screen import Screen
 from Components.Button import Button
 from Components.Label import Label
 from Components.ActionMap import ActionMap
 from Screens.MessageBox import MessageBox
-from Components.config import config
-import skin
 import os
 from .myselectionlist import MySelectionList
-from .ui import PKLFILE, cfg
+from .ui import PKLFILE
 
 
 class pklMovieManager(Screen):
@@ -108,7 +103,7 @@ class pklMovieManager(Screen):
 					os.unlink("%s/%s" % (item[0], PKLFILE))
 					self.list.removeSelection(item)
 					self.pklPaths.pop(item[0])
-				except:
+				except Exception:
 					print("[pklMovieManager] error remove %s" % PKLFILE)
 			if not len(self.list.list):
 				self.exit()

@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 # for localized messages
-from __future__ import absolute_import
-from __future__ import print_function
 from . import _, ngettext
 
 #
 #  Movie Manager - Plugin E2 for OpenPLi
-VERSION = "2.02"
 #  by ims (c) 2018-2021 ims@openpli.org
 #
 #  This program is free software; you can redistribute it and/or
@@ -22,8 +19,6 @@ VERSION = "2.02"
 
 from Components.config import ConfigSubsection, config, ConfigYesNo, ConfigSelection, getConfigListEntry
 from Screens.Screen import Screen
-from Tools.Directories import SCOPE_CURRENT_SKIN, resolveFilename
-from Tools.LoadPixmap import LoadPixmap
 from Screens.MessageBox import MessageBox
 from Components.Label import Label
 from Components.Button import Button
@@ -41,7 +36,7 @@ from Tools.BoundFunction import boundFunction
 from Components.ServiceEventTracker import ServiceEventTracker
 from Screens.MinuteInput import MinuteInput
 from ServiceReference import ServiceReference
-from time import localtime, strftime, time
+from time import localtime, strftime
 from .myselectionlist import MySelectionList, MySelectionEntryComponent
 import os
 import skin
@@ -49,6 +44,7 @@ import skin
 MY_RECORDINGS_EXTENSIONS = frozenset((".ts",))
 MY_MOVIE_EXTENSIONS = MOVIE_EXTENSIONS.symmetric_difference(MY_RECORDINGS_EXTENSIONS)
 SKIPPED = ".m3u8"
+VERSION = "2.02"
 
 
 def hex2strColor(argb):
@@ -59,10 +55,10 @@ def hex2strColor(argb):
 
 
 try:
-	fC = "\c%s" % hex2strColor(int(skin.parseColor("foreground").argb()))
-except:
-	fC = "\c%s" % hex2strColor(0x00f0f0f0)
-gC = "\c%s" % hex2strColor(0x000ff80)
+	fC = r"\c%s" % hex2strColor(int(skin.parseColor("foreground").argb()))
+except Exception:
+	fC = r"\c%s" % hex2strColor(0x00f0f0f0)
+gC = r"\c%s" % hex2strColor(0x000ff80)
 
 config.moviemanager = ConfigSubsection()
 config.moviemanager.sensitive = ConfigYesNo(default=False)
@@ -215,12 +211,12 @@ class MovieManager(Screen, HelpableScreen):
 		time_13 = config.seek.selfdefined_13.value
 		time_46 = config.seek.selfdefined_46.value
 		time_79 = config.seek.selfdefined_79.value
-		f13 = lambda: self.seekRelative(1, time_13 * 90000)
-		f46 = lambda: self.seekRelative(1, time_46 * 90000)
-		f79 = lambda: self.seekRelative(1, time_79 * 90000)
-		b13 = lambda: self.seekRelative(-1, time_13 * 90000)
-		b46 = lambda: self.seekRelative(-1, time_46 * 90000)
-		b79 = lambda: self.seekRelative(-1, time_79 * 90000)
+		f13 = lambda: self.seekRelative(1, time_13 * 90000)  # noqa E731
+		f46 = lambda: self.seekRelative(1, time_46 * 90000)  # noqa E731
+		f79 = lambda: self.seekRelative(1, time_79 * 90000)  # noqa E731
+		b13 = lambda: self.seekRelative(-1, time_13 * 90000)  # noqa E731
+		b46 = lambda: self.seekRelative(-1, time_46 * 90000)  # noqa E731
+		b79 = lambda: self.seekRelative(-1, time_79 * 90000)  # noqa E731
 		self["MovieManagerActions"] = HelpableActionMap(self, "MovieManagerActions",
 			{
 			"menu": (self.selectAction, _("Select action")),
@@ -687,7 +683,7 @@ class MovieManager(Screen, HelpableScreen):
 				if os.path.isfile(meta):
 					metafile = open(meta, "r+")
 					sid = metafile.readline()
-					oldtitle = metafile.readline()
+					oldtitle = metafile.readline()  # noqa F841
 					rest = metafile.read()
 					metafile.seek(0)
 					metafile.write("%s%s\n%s" % (sid, name, rest))
@@ -1173,7 +1169,7 @@ class MovieManager(Screen, HelpableScreen):
 	def csfd(self):
 		def isCSFD():
 			try:
-				from Plugins.Extensions.CSFD.plugin import CSFD
+				from Plugins.Extensions.CSFD.plugin import CSFD  # noqa: F401
 			except ImportError:
 				self.session.open(MessageBox, _("The CSFD plugin is not installed!\nPlease install it."), type=MessageBox.TYPE_INFO, timeout=5)
 				return False
