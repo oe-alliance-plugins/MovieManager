@@ -433,8 +433,9 @@ class MovieManager(Screen, HelpableScreen):
 		keys = ["5", "6"]
 		menu.append((_("Rename"), 2, _("Rename current file.")))
 		keys += ["2"]
-		menu.append((_("Create directory"), 7, _("Create new directory in current directory.")))
-		keys += ["7"]
+		if callable(getattr(self.parent, "createDirCallback", None)):
+			menu.append((_("Create directory"), 7, _("Create new directory in current directory.")))
+			keys += ["7"]
 		if config.usage.setup_level.index == 2:
 			menu.append((_("Delete"), 8, _("Delete current file or selected file(s).")))
 			keys += ["8"]
@@ -1118,8 +1119,13 @@ class MovieManager(Screen, HelpableScreen):
 			self.playerInfoBar.doClose()
 			self.session.nav.playService(self.playingRef)
 			config.moviemanager.sort.save()
+			reloadList = getattr(self.parent, "reloadList", None)
+			if not callable(reloadList):
+				# EMC opens plugins from its menu and caches the underlying movie list.
+				reloadList = getattr(getattr(self.parent, "mselection", None), "reloadListWithoutCache", None)
 			self.close()
-			self.parent.reloadList()
+			if callable(reloadList):
+				reloadList()
 
 	def selectMovieLocation(self, title, callback):
 		bookmarks = [("(" + _("Other") + "...)", None)]
